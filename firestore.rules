@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own profile
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Surveys: owners can manage, others can read if published
+    match /surveys/{surveyId} {
+      allow read: if resource.data.status == 'published' || 
+                   (request.auth != null && request.auth.uid == resource.data.userId);
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Responses: anonymous or authenticated users can create, survey owners can read
+    match /responses/{responseId} {
+      allow create: if request.auth != null || 
+                    (request.resource.data.anonymousId != null && 
+                     request.resource.data.surveyId != null);
+      allow read: if request.auth != null && 
+                   request.auth.uid == resource.data.userId ||
+                   (request.auth != null && 
+                    get(/databases/$(database)/documents/surveys/$(resource.data.surveyId)).data.userId == request.auth.uid);
+    }
+    
+    // Templates: public read, authenticated create
+    match /templates/{templateId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Analytics: survey owners can read
+    match /analytics/{surveyId} {
+      allow read: if request.auth != null && 
+                   request.auth.uid == get(/databases/$(database)/documents/surveys/$(surveyId)).data.userId;
+    }
+  }
+}
