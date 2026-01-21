@@ -1,0 +1,28 @@
+{
+  "name": "datauni",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "functions"
+  ],
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "deploy": "firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "emulators": "firebase emulators:start",
+    "test": "cd frontend && npm run test",
+    "lint": "cd frontend && npm run lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "firebase-tools": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
